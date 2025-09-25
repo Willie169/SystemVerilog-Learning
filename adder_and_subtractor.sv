@@ -65,13 +65,6 @@ module ones_complement_adder #(parameter N=4) (
     );
 endmodule
 
-module ones_complement_adder_overflow #(parameter N=4) (
-    input logic [N-1:0] augend, addend, sum,
-    output logic overflow
-);
-    assign overflow = (augend[N-1] & addend[N-1] & ~sum[N-1]) | (~augend[N-1] & ~addend[N-1] & sum[N-1]);
-endmodule
-
 module twos_complement_adder #(parameter N=4) (
     input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum
@@ -85,7 +78,7 @@ module twos_complement_adder #(parameter N=4) (
     );
 endmodule
 
-module twos_complement_adder_overflow #(parameter N=4) (
+module signed_adder_overflow_detector #(parameter N=4) (
     input logic [N-1:0] augend, addend, sum,
     output logic overflow
 );
@@ -150,13 +143,6 @@ module ones_complement_subtractor #(parameter N=4) (
     );
 endmodule
 
-module ones_complement_subtractor_overflow #(parameter N=4) (
-    input logic [N-1:0] minuend, subtrahend, difference,
-    output logic overflow
-);
-    assign overflow = (minuend[N-1] & ~subtrahend[N-1] & ~difference[N-1]) | (~minuend[N-1] & subtrahend[N-1] & difference[N-1]);
-endmodule
-
 module twos_complement_subtractor #(parameter N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference
@@ -170,7 +156,7 @@ module twos_complement_subtractor #(parameter N=4) (
     );
 endmodule
 
-module twos_complement_subtractor_overflow #(parameter N=4) (
+module signed_subtractor_overflow_detector #(parameter N=4) (
     input logic [N-1:0] minuend, subtrahend, difference,
     output logic overflow
 );
