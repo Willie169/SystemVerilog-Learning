@@ -1,178 +1,178 @@
 module full_adder (
-    input logic a, b, cin,
-    output logic sum, cout
+    input logic augend, addend, carry_in,
+    output logic sum, carry_out
 );
-    assign sum = a ^ b ^ cin;
-    assign cout = (a & b) | (b & cin) | (a & cin);
+    assign sum = augend ^ addend ^ carry_in;
+    assign carry_out = (augend & addend) | (addend & carry_in) | (augend & carry_in);
 endmodule
 
 module ripple_adder #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    input logic cin,
+    input logic [N-1:0] augend, addend,
+    input logic carry_in,
     output logic [N-1:0] sum,
-    output logic cout
+    output logic carry_out
 );
     logic [N:0] carry;
-    assign carry[0] = cin;
+    assign carry[0] = carry_in;
     genvar i;
     generate
         for (i=0; i<N; i=i+1) begin : adder_loop
             full_adder fa (
-                .a(a[i]),
-                .b(b[i]),
-                .cin(carry[i]),
+                .augend(augend[i]),
+                .addend(addend[i]),
+                .carry_in(carry[i]),
                 .sum(sum[i]),
-                .cout(carry[i+1])
+                .carry_out(carry[i+1])
             );
         end
     endgenerate
-    assign cout = carry[N];
+    assign carry_out = carry[N];
 endmodule
 
 module unsigned_adder #(parameter N=4) (
-    input logic [N-1:0] a, b,
+    input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum,
     output logic overflow
 );
     ripple_adder #(.N(N)) ra (
-        .a(a),
-        .b(b),
-        .cin(1'b0),
+        .augend(augend),
+        .addend(addend),
+        .carry_in(1'b0),
         .sum(sum),
-        .cout(overflow)
+        .carry_out(overflow)
     );
 endmodule
 
 module ones_complement_adder #(parameter N=4) (
-    input logic [N-1:0] a, b,
+    input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum
 );
     logic [N-1:0] raw;
     logic carry;
     ripple_adder #(.N(N)) ra (
-        .a(a),
-        .b(b),
-        .cin(1'b0),
+        .augend(augend),
+        .addend(addend),
+        .carry_in(1'b0),
         .sum(raw),
-        .cout(carry)
+        .carry_out(carry)
     );
     ripple_adder #(.N(N)) end_around (
-        .a(raw),
-        .b({{N-1{1'b0}}, carry}),
-        .cin(1'b0),
+        .augend(raw),
+        .addend({{N-1{1'b0}}, carry}),
+        .carry_in(1'b0),
         .sum(sum),
-        .cout()
-    );
-endmodule
-
-module twos_complement_adder #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    output logic [N-1:0] sum
-);
-    ripple_adder #(.N(N)) ra (
-        .a(a),
-        .b(b),
-        .cin(1'b0),
-        .sum(sum),
-        .cout()
-    );
-endmodule
-
-module full_subtractor (
-    input logic a, b, bin,
-    output logic diff, bout
-);
-    assign diff = a ^ b ^ bin;
-    assign bout = (~a & b) | (~a & bin) | (b & bin);
-endmodule
-
-module ripple_subtractor #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    input logic bin,
-    output logic [N-1:0] diff,
-    output logic bout
-);
-    logic [N:0] borrow;
-    assign borrow[0] = bin;
-    genvar i;
-    generate
-        for (i=0; i<N; i=i+1) begin : subtractor_loop
-            full_subtractor fs (
-                .a(a[i]),
-                .b(b[i]),
-                .bin(borrow[i]),
-                .diff(diff[i]),
-                .bout(borrow[i+1])
-            );
-        end
-    endgenerate
-    assign bout = borrow[N];
-endmodule
-
-module unsigned_subtractor #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    output logic [N-1:0] diff,
-    output logic overflow
-);
-    ripple_subtractor #(.N(N)) rs (
-        .a(a),
-        .b(b),
-        .bin(1'b0),
-        .diff(diff),
-        .bout(overflow)
-    );
-endmodule
-
-module ones_complement_subtractor #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    output logic [N-1:0] diff
-);
-    logic [N-1:0] b_comp;
-    assign b_comp = ~b;  
-    ones_complement_adder #(.N(N)) oca (
-        .a(a),
-        .b(b_comp),
-        .sum(diff)
+        .carry_out()
     );
 endmodule
 
 module ones_complement_adder_overflow #(parameter N=4) (
-    input logic [N-1:0] a, b, sum,
+    input logic [N-1:0] augend, addend, sum,
     output logic overflow
 );
-    assign overflow = (a[N-1] & b[N-1] & ~sum[N-1]) | (~a[N-1] & ~b[N-1] & sum[N-1]);
+    assign overflow = (augend[N-1] & addend[N-1] & ~sum[N-1]) | (~augend[N-1] & ~addend[N-1] & sum[N-1]);
 endmodule
 
-module ones_complementd_subtractor_overflow #(parameter N=4) (
-    input logic [N-1:0] a, b, diff,
-    output logic overflow
+module twos_complement_adder #(parameter N=4) (
+    input logic [N-1:0] augend, addend,
+    output logic [N-1:0] sum
 );
-    assign overflow = (a[N-1] & ~b[N-1] & ~diff[N-1]) | (~a[N-1] & b[N-1] & diff[N-1]);
-endmodule
-
-module twos_complement_subtractor #(parameter N=4) (
-    input logic [N-1:0] a, b,
-    output logic [N-1:0] diff
-);
-    logic [N-1:0] b_comp;
-    assign b_comp = ~b + 1'b1;    
-    twos_complement_adder #(.N(N)) tca (
-        .a(a),
-        .b(b_comp),
-        .sum(diff)
+    ripple_adder #(.N(N)) ra (
+        .augend(augend),
+        .addend(addend),
+        .carry_in(1'b0),
+        .sum(sum),
+        .carry_out()
     );
 endmodule
 
 module twos_complement_adder_overflow #(parameter N=4) (
-    input logic [N-1:0] a, b, sum,
+    input logic [N-1:0] augend, addend, sum,
     output logic overflow
 );
-    assign overflow = (a[N-1] & b[N-1] & ~sum[N-1]) | (~a[N-1] & ~b[N-1] & sum[N-1]);
+    assign overflow = (augend[N-1] & addend[N-1] & ~sum[N-1]) | (~augend[N-1] & ~addend[N-1] & sum[N-1]);
 endmodule
 
-module twos_complementd_subtractor_overflow #(parameter N=4) (
-    input logic [N-1:0] a, b, diff,
+module full_subtractor (
+    input logic minuend, subtrahend, borrow_in,
+    output logic difference, borrow_out
+);
+    assign difference = minuend ^ subtrahend ^ borrow_in;
+    assign borrow_out = (~minuend & subtrahend) | (~minuend & borrow_in) | (subtrahend & borrow_in);
+endmodule
+
+module ripple_subtractor #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend,
+    input logic borrow_in,
+    output logic [N-1:0] difference,
+    output logic borrow_out
+);
+    logic [N:0] borrow;
+    assign borrow[0] = borrow_in;
+    genvar i;
+    generate
+        for (i=0; i<N; i=i+1) begin : subtractor_loop
+            full_subtractor fs (
+                .minuend(minuend[i]),
+                .subtrahend(subtrahend[i]),
+                .borrow_in(borrow[i]),
+                .difference(difference[i]),
+                .borrow_out(borrow[i+1])
+            );
+        end
+    endgenerate
+    assign borrow_out = borrow[N];
+endmodule
+
+module unsigned_subtractor #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend,
+    output logic [N-1:0] difference,
     output logic overflow
 );
-    assign overflow = (a[N-1] & ~b[N-1] & ~diff[N-1]) | (~a[N-1] & b[N-1] & diff[N-1]);
-end module
+    ripple_subtractor #(.N(N)) rs (
+        .minuend(minuend),
+        .subtrahend(subtrahend),
+        .borrow_in(1'b0),
+        .difference(difference),
+        .borrow_out(overflow)
+    );
+endmodule
+
+module ones_complement_subtractor #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend,
+    output logic [N-1:0] difference
+);
+    logic [N-1:0] complement;
+    assign complement = ~subtrahend;  
+    ones_complement_adder #(.N(N)) oca (
+        .augend(minuend),
+        .addend(complement),
+        .sum(difference)
+    );
+endmodule
+
+module ones_complement_subtractor_overflow #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend, difference,
+    output logic overflow
+);
+    assign overflow = (minuend[N-1] & ~subtrahend[N-1] & ~difference[N-1]) | (~minuend[N-1] & subtrahend[N-1] & difference[N-1]);
+endmodule
+
+module twos_complement_subtractor #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend,
+    output logic [N-1:0] difference
+);
+    logic [N-1:0] complement;
+    assign complement = ~subtrahend + 1'b1;    
+    twos_complement_adder #(.N(N)) tca (
+        .augend(minuend),
+        .addend(complement),
+        .sum(difference)
+    );
+endmodule
+
+module twos_complement_subtractor_overflow #(parameter N=4) (
+    input logic [N-1:0] minuend, subtrahend, difference,
+    output logic overflow
+);
+    assign overflow = (minuend[N-1] & ~subtrahend[N-1] & ~difference[N-1]) | (~minuend[N-1] & subtrahend[N-1] & difference[N-1]);
+endmodule
