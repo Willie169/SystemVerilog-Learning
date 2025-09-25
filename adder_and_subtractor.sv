@@ -175,4 +175,4 @@ module twos_complementd_subtractor_overflow #(parameter N=4) (
     output logic overflow
 );
     assign overflow = (a[N-1] & ~b[N-1] & ~diff[N-1]) | (~a[N-1] & b[N-1] & diff[N-1]);
-endmodule
+end module
