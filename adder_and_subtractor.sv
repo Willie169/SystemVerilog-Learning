@@ -1,4 +1,4 @@
-package adder_and_substractor;
+// adder_and_subtractor.sv
 
 module full_adder (
     input logic augend, addend, carry_in,
@@ -136,11 +136,9 @@ module ones_complement_subtractor #(parameter N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference
 );
-    logic [N-1:0] complement;
-    assign complement = ~subtrahend;  
     ones_complement_adder #(.N(N)) oca (
         .augend(minuend),
-        .addend(complement),
+        .addend(~subtrahend),
         .sum(difference)
     );
 endmodule
@@ -164,5 +162,3 @@ module signed_subtractor_overflow_detector #(parameter N=4) (
 );
     assign overflow = (minuend[N-1] & ~subtrahend[N-1] & ~difference[N-1]) | (~minuend[N-1] & subtrahend[N-1] & difference[N-1]);
 endmodule
-
-endpackage

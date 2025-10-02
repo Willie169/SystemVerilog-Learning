@@ -1,5 +1,3 @@
-package carry_save_adder;
-
 module carry_save_adder #(parameter int WIDTH = 8)(
     input  logic [WIDTH-1:0] A,
     input  logic [WIDTH-1:0] B,
@@ -58,5 +56,3 @@ module multi_operand_carry_save_adder #(
             sum = stage[0];
     end
 endmodule
-
-endpackage
