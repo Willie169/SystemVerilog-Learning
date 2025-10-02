@@ -35,14 +35,14 @@ module tb_adder_and_subtractor;
 
         begin
             expected_unsigned_sum = a + b;
-            expected_ones_sum  = (expected_unsigned_sum[N-1:0] + expected_unsigned_sum[N]) & ((1<<N)-1);
+            expected_ones_sum  = expected_unsigned_sum[N-1:0] + expected_unsigned_sum[N];
             a_signed = a;
             b_signed = b;
             expected_twos_sum = a_signed + b_signed;
             expected_signed_overflow = ((a_signed[N-1] & b_signed[N-1] & ~expected_twos_sum[N-1]) |
                                         (~a_signed[N-1] & ~b_signed[N-1] & expected_twos_sum[N-1]));
             expected_unsigned_diff = a - b;
-            expected_ones_diff = (expected_unsigned_diff[N-1:0] + expected_unsigned_diff[N]) & ((1<<N)-1);
+            expected_ones_diff = expected_unsigned_diff[N-1:0] - expected_unsigned_diff[N];
             expected_twos_diff = a_signed - b_signed;
             expected_signed_sub_overflow = ((a_signed[N-1] & ~b_signed[N-1] & ~expected_twos_diff[N-1]) |
                                             (~a_signed[N-1] & b_signed[N-1] & expected_twos_diff[N-1]));

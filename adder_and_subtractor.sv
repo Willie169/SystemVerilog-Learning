@@ -136,10 +136,21 @@ module ones_complement_subtractor #(parameter N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference
 );
-    ones_complement_adder #(.N(N)) oca (
-        .augend(minuend),
-        .addend(~subtrahend),
-        .sum(difference)
+    logic [N-1:0] raw;
+    logic borrow;
+    ripple_subtractor #(.N(N)) rs (
+        .minuend(minuend),
+        .subtrahend(subtrahend),
+        .borrow_in(1'b0),
+        .difference(raw),
+        .borrow_out(borrow)
+    );
+    ripple_subtractor #(.N(N)) end_around (
+        .minuend(raw),
+        .subtrahend({{N-1{1'b0}}, borrow}),
+        .borrow_in(1'b0),
+        .difference(difference),
+        .borrow_out()
     );
 endmodule
 
