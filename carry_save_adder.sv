@@ -1,19 +1,6 @@
-module carry_save_adder #(parameter int WIDTH = 8)(
-    input  logic [WIDTH-1:0] A,
-    input  logic [WIDTH-1:0] B,
-    input  logic [WIDTH-1:0] C,
-    output logic [WIDTH-1:0] Sum,
-    output logic [WIDTH-1:0] Carry
-);
-    always_comb begin
-        for (int i = 0; i < WIDTH; i++) begin
-            Sum[i] = A[i] ^ B[i] ^ C[i];
-            Carry[i] = (A[i]&B[i]) | (B[i]&C[i]) | (C[i]&A[i]);
-        end
-    end
-endmodule
+// carry_save_adder.sv
 
-module multi_operand_carry_save_adder #(
+module carry_save_adder #(
     parameter int N = 4,
     parameter int WIDTH = 8
 )(
@@ -21,38 +8,36 @@ module multi_operand_carry_save_adder #(
     output logic [WIDTH + $clog2(N)-1:0] sum
 );
     localparam int OUTW = WIDTH + $clog2(N);
-    logic [OUTW-1:0] stage [0:2*N-2];
-    int stage_count;
+    logic [OUTW-1:0] intermediate [0:N-1];
+    int remaining;
+    int new_remaining;
     always_comb begin
         for (int i = 0; i < N; i++)
-            stage[i] = operands[i];
-        stage_count = N;
-        int idx = 0;
-        while (stage_count > 2) begin
-            int new_count = 0;
-            for (int i = 0; i < stage_count; i += 3) begin
-                if (i+2 < stage_count) begin
-                    logic [OUTW-1:0] S, C;
-                    carry_save_adder #(.WIDTH(OUTW)) csa (
-                        .A(stage[i]),
-                        .B(stage[i+1]),
-                        .C(stage[i+2]),
-                        .Sum(S),
-                        .Carry(C)
-                    );
-                    stage[new_count] = S;
-                    stage[new_count+1] = C << 1;
-                    new_count += 2;
+            intermediate[i] = {{(OUTW-WIDTH){1'b0}}, operands[i]};
+        remaining = N;
+        for (int step = 0; step < N; step++) begin
+            if (remaining > 2) break;
+            new_remaining = 0;
+            for (int i = 0; i < remaining; i += 3) begin
+                if (i+2 < remaining) begin
+                    logic [OUTW-1:0] s, c;
+                    for (int j = 0; j < OUTW; j++) begin
+                        s[j] = intermediate[i][j] ^ intermediate[i+1][j] ^ intermediate[i+2][j];
+                        c[j] = (intermediate[i][j]&intermediate[i+1][j]) | (intermediate[i+1][j]&intermediate[i+2][j]) | (intermediate[i+2][j]&intermediate[i][j]);
+                    end
+                    intermediate[new_remaining] = s;
+                    intermediate[new_remaining+1] = c << 1;
+                    new_remaining += 2;
                 end else begin
-                    stage[new_count] = stage[i];
-                    new_count += 1;
+                    intermediate[new_remaining] = intermediate[i];
+                    new_remaining += 1;
                 end
             end
-            stage_count = new_count;
+            remaining = new_remaining;
         end
-        if (stage_count == 2)
-            sum = stage[0] + stage[1];
+        if (remaining == 2)
+            sum = intermediate[0] + intermediate[1];
         else
-            sum = stage[0];
+            sum = intermediate[0];
     end
 endmodule
