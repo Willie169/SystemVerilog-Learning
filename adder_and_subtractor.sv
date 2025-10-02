@@ -1,3 +1,5 @@
+package adder_and_substractor;
+
 module full_adder (
     input logic augend, addend, carry_in,
     output logic sum, carry_out
@@ -162,3 +164,5 @@ module signed_subtractor_overflow_detector #(parameter N=4) (
 );
     assign overflow = (minuend[N-1] & ~subtrahend[N-1] & ~difference[N-1]) | (~minuend[N-1] & subtrahend[N-1] & difference[N-1]);
 endmodule
+
+endpackage
