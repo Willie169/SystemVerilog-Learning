@@ -8,7 +8,7 @@ module full_adder (
     assign carry_out = (augend & addend) | (addend & carry_in) | (augend & carry_in);
 endmodule
 
-module ripple_adder #(parameter N=4) (
+module ripple_adder #(parameter int unsigned N=4) (
     input logic [N-1:0] augend, addend,
     input logic carry_in,
     output logic [N-1:0] sum,
@@ -18,7 +18,7 @@ module ripple_adder #(parameter N=4) (
     assign carry[0] = carry_in;
     genvar i;
     generate
-        for (i=0; i<N; i=i+1) begin : adder_loop
+        for (int unsigned i=0; i<N; i=i+1) begin : adder_loop
             full_adder fa (
                 .augend(augend[i]),
                 .addend(addend[i]),
@@ -31,7 +31,7 @@ module ripple_adder #(parameter N=4) (
     assign carry_out = carry[N];
 endmodule
 
-module unsigned_adder #(parameter N=4) (
+module unsigned_adder #(parameter int unsigned N=4) (
     input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum,
     output logic overflow
@@ -45,7 +45,7 @@ module unsigned_adder #(parameter N=4) (
     );
 endmodule
 
-module ones_complement_adder #(parameter N=4) (
+module ones_complement_adder #(parameter int unsigned N=4) (
     input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum
 );
@@ -67,7 +67,7 @@ module ones_complement_adder #(parameter N=4) (
     );
 endmodule
 
-module twos_complement_adder #(parameter N=4) (
+module twos_complement_adder #(parameter int unsigned N=4) (
     input logic [N-1:0] augend, addend,
     output logic [N-1:0] sum
 );
@@ -80,7 +80,7 @@ module twos_complement_adder #(parameter N=4) (
     );
 endmodule
 
-module signed_adder_overflow_detector #(parameter N=4) (
+module signed_adder_overflow_detector #(parameter int unsigned N=4) (
     input logic [N-1:0] augend, addend, sum,
     output logic overflow
 );
@@ -95,7 +95,7 @@ module full_subtractor (
     assign borrow_out = (~minuend & subtrahend) | (~minuend & borrow_in) | (subtrahend & borrow_in);
 endmodule
 
-module ripple_subtractor #(parameter N=4) (
+module ripple_subtractor #(parameter int unsigned N=4) (
     input logic [N-1:0] minuend, subtrahend,
     input logic borrow_in,
     output logic [N-1:0] difference,
@@ -105,7 +105,7 @@ module ripple_subtractor #(parameter N=4) (
     assign borrow[0] = borrow_in;
     genvar i;
     generate
-        for (i=0; i<N; i=i+1) begin : subtractor_loop
+        for (int unsigned i=0; i<N; i=i+1) begin : subtractor_loop
             full_subtractor fs (
                 .minuend(minuend[i]),
                 .subtrahend(subtrahend[i]),
@@ -118,7 +118,7 @@ module ripple_subtractor #(parameter N=4) (
     assign borrow_out = borrow[N];
 endmodule
 
-module unsigned_subtractor #(parameter N=4) (
+module unsigned_subtractor #(parameter int unsigned N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference,
     output logic overflow
@@ -132,7 +132,7 @@ module unsigned_subtractor #(parameter N=4) (
     );
 endmodule
 
-module ones_complement_subtractor #(parameter N=4) (
+module ones_complement_subtractor #(parameter int unsigned N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference
 );
@@ -154,7 +154,7 @@ module ones_complement_subtractor #(parameter N=4) (
     );
 endmodule
 
-module twos_complement_subtractor #(parameter N=4) (
+module twos_complement_subtractor #(parameter int unsigned N=4) (
     input logic [N-1:0] minuend, subtrahend,
     output logic [N-1:0] difference
 );
@@ -167,7 +167,7 @@ module twos_complement_subtractor #(parameter N=4) (
     );
 endmodule
 
-module signed_subtractor_overflow_detector #(parameter N=4) (
+module signed_subtractor_overflow_detector #(parameter int unsigned N=4) (
     input logic [N-1:0] minuend, subtrahend, difference,
     output logic overflow
 );

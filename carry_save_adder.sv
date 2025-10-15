@@ -1,4 +1,4 @@
-module carry_save_adder #(parameter int WIDTH = 8)(
+module carry_save_adder #(parameter int unsigned WIDTH = 8)(
     input  logic [WIDTH-1:0] A,
     input  logic [WIDTH-1:0] B,
     input  logic [WIDTH-1:0] C,
@@ -6,7 +6,7 @@ module carry_save_adder #(parameter int WIDTH = 8)(
     output logic [WIDTH-1:0] Carry
 );
     always_comb begin
-        for (int i = 0; i < WIDTH; i++) begin
+        for (int unsigned i = 0; i < WIDTH; i++) begin
             Sum[i] = A[i] ^ B[i] ^ C[i];
             Carry[i] = (A[i]&B[i]) | (B[i]&C[i]) | (C[i]&A[i]);
         end
@@ -14,23 +14,23 @@ module carry_save_adder #(parameter int WIDTH = 8)(
 endmodule
 
 module multi_operand_carry_save_adder #(
-    parameter int N = 4,
-    parameter int WIDTH = 8
+    parameter int unsigned N = 4,
+    parameter int unsigned WIDTH = 8
 )(
     input logic [N-1:0][WIDTH-1:0] operands,
     output logic [WIDTH + $clog2(N)-1:0] sum
 );
-    localparam int OUTW = WIDTH + $clog2(N);
+    localparam int unsigned OUTW = WIDTH + $clog2(N);
     logic [OUTW-1:0] stage [0:2*N-2];
-    int stage_count;
+    int unsigned stage_count;
     always_comb begin
-        for (int i = 0; i < N; i++)
+        for (int unsigned i = 0; i < N; i++)
             stage[i] = operands[i];
         stage_count = N;
-        int idx = 0;
+        int unsigned idx = 0;
         while (stage_count > 2) begin
-            int new_count = 0;
-            for (int i = 0; i < stage_count; i += 3) begin
+            int unsigned new_count = 0;
+            for (int unsigned i = 0; i < stage_count; i += 3) begin
                 if (i+2 < stage_count) begin
                     logic [OUTW-1:0] S, C;
                     carry_save_adder #(.WIDTH(OUTW)) csa (
